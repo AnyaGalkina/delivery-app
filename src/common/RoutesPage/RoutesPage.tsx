@@ -5,7 +5,7 @@ import { Employees } from '../../features/admin/employees/Employees';
 import { Main } from '../../features/admin/main/Main';
 import { Prices } from '../../features/admin/prices/Prices';
 import { Reports } from '../../features/admin/reports/Reports';
-import { Login } from '../../features/auth/login/Login';
+import { SignUp, Login } from '../../features/auth';
 import { Layout } from '../components/Layout';
 import { ADMIN_PATH, AUTH_PATH } from '../enums/enum';
 import { ReturnComponentType } from '../types/ReactComponentType';
@@ -13,7 +13,7 @@ import { ReturnComponentType } from '../types/ReactComponentType';
 export const RoutesPage = (): ReturnComponentType => {
   const authRoutes = [
     { path: AUTH_PATH.LOGIN, component: <Login /> },
-    { path: AUTH_PATH.REGISTRATION, component: <App /> },
+    { path: AUTH_PATH.REGISTRATION, component: <SignUp /> },
     { path: AUTH_PATH.FORGOT_PASSWORD, component: <App /> },
     { path: `${AUTH_PATH.CREATE_NEW_PASSWORD}`, component: <App /> },
   ];
@@ -26,7 +26,6 @@ export const RoutesPage = (): ReturnComponentType => {
 
   return (
     <Routes>
-      <Route path="*" element={<p>there is no route</p>} />
       <Route path="/" element={<Layout />}>
         <Route path="/" element={<Navigate to={`/auth/${AUTH_PATH.LOGIN}`} />} />
         {adminRoutes.map((route) => (
@@ -38,6 +37,7 @@ export const RoutesPage = (): ReturnComponentType => {
           <Route path={route.path} element={route.component} key={route.path} />
         ))}
       </Route>
+      <Route path="*" element={<p>there is no route</p>} />
     </Routes>
   );
 };
