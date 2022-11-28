@@ -1,6 +1,6 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
-import { authReducer } from '../features/auth/auth-reducer';
+import { authReducer } from '../features/auth';
 
 import { appReducer } from './app-reducer';
 

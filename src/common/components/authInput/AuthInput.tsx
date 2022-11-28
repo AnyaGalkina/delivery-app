@@ -1,18 +1,17 @@
 import React, { ReactElement } from 'react';
 
 import { TextField } from '@mui/material';
-import { UseFormRegister, UseFormWatch } from 'react-hook-form';
+import { FieldError, UseFormRegister, UseFormWatch } from 'react-hook-form';
 
-import { LogInType } from '../../../features/auth/authAPI';
+import { LogInType } from '../../../features/auth';
 import { SignUpFormData } from '../../../features/auth/signUp/SignUp';
-// import {SignInFormData} from '../../../features/auth/login/Login';
 
 import styles from './AuthInput.module.css';
 
 type PropsType = {
   name: keyof SignUpFormData;
   placeholder: string;
-  errors?: any;
+  errors?: FieldError | undefined;
   register: UseFormRegister<SignUpFormData> | UseFormRegister<LogInType>;
   required?: boolean;
   minLength?: number;
