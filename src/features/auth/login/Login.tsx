@@ -4,17 +4,26 @@ import { Paper } from '@mui/material';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 
-import { AUTH_PATH } from '../../../common/enums/enum';
+import { useAppSelector } from '../../../app/hooks';
+import { ADMIN_PATH, AUTH_PATH } from '../../../common';
 
 import styles from './Login.module.css';
 import { LoginForm } from './loginForm/LoginForm';
 
 export const Login = (): ReactElement => {
   const navigate = useNavigate();
+  const isAuth = useAppSelector((state) => state.auth.isAuth);
+  const appStatus = useAppSelector((state) => state.app.appStatus);
+
+  const disabled = appStatus === 'loading';
 
   const onSignUpClick = (): void => {
     navigate(`/auth/${AUTH_PATH.REGISTRATION}`);
   };
+
+  if (isAuth) {
+    navigate(`/${ADMIN_PATH.MAIN}`);
+  }
 
   return (
     <div className={styles.loginContainer}>
@@ -24,7 +33,7 @@ export const Login = (): ReactElement => {
       <div>
         <Paper
           elevation={2}
-          style={{
+          sx={{
             width: '360px',
             display: 'flex',
             flexDirection: 'column',
@@ -38,9 +47,10 @@ export const Login = (): ReactElement => {
           <h2>Hello, Partner!</h2>
           <p>Enter your details and start work with us</p>
           <Button
-            style={{ marginTop: '20px' }}
+            sx={{ marginTop: '20px' }}
             onClick={onSignUpClick}
             variant="outlined"
+            disabled={disabled}
           >
             Sign Up
           </Button>

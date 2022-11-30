@@ -16,12 +16,13 @@ type PropsType = {
   required?: boolean;
   minLength?: number;
   maxLength?: number;
-  disable?: boolean;
+  disabled?: boolean;
+  pattern?: any;
   watch?: UseFormWatch<SignUpFormData>;
 };
 
 export const AuthInput = ({
-  disable,
+  disabled,
   errors,
   minLength,
   watch,
@@ -29,6 +30,7 @@ export const AuthInput = ({
   name,
   register,
   placeholder,
+  pattern,
 }: PropsType): ReactElement => {
   return (
     <div>
@@ -36,7 +38,7 @@ export const AuthInput = ({
         className={styles.input}
         label={placeholder}
         variant="outlined"
-        disable={disable}
+        disabled={disabled}
         // @ts-ignore
         {...register(name, {
           required: { value: true, message: 'This is required' },
@@ -50,6 +52,7 @@ export const AuthInput = ({
               return 'Your passwords do no match';
             }
           },
+          pattern,
         })}
       />
       <div className={styles.error}>{errors ? <span>{errors.message}</span> : ''}</div>

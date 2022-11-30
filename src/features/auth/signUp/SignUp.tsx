@@ -1,20 +1,13 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 
 import { FormControl, FormGroup, Grid, Paper } from '@mui/material';
 import Button from '@mui/material/Button';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
-import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-import { AppStatusType } from '../../../app/app-reducer';
-import { useAppDispatch } from '../../../app/hooks';
-import { RootState } from '../../../app/store';
-// eslint-disable-next-line import/order
-import { AuthInput } from '../../../common/components/authInput/AuthInput';
-
-// import {useNavigate} from 'react-router-dom';
-
-import { BasicModal } from '../../../common/components/modal/BasicModal';
-import { signUp } from '../auth-reducer';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
+import { AUTH_PATH, BasicModal, AuthInput } from '../../../common';
+import { resendConfirmationCode, signUp } from '../auth-reducer';
 
 import styles from './SignUp.module.css';
 
@@ -29,13 +22,13 @@ export interface SignUpFormData {
 export const SignUp = (): ReactElement => {
   const dispatch = useAppDispatch();
 
-  const [open, setOpen] = useState(false);
-  // const [data, setData] = useState<SignUpFormData>();
-  const appStatus = useSelector<RootState, AppStatusType>((state) => state.app.appStatus);
+  const appStatus = useAppSelector((state) => state.app.appStatus);
+  const email = useAppSelector((state) => state.auth.email);
+  // const isSignedUp = useAppSelector((state) => state.auth.isSignedUp);
 
-  // const navigate = useNavigate();
-  //
-  // const isSignedUp = useSelector<RootState, boolean>((state) => state.auth.isSignedUp);
+  const [open, setOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const {
     register,
@@ -45,42 +38,51 @@ export const SignUp = (): ReactElement => {
     formState: { errors },
   } = useForm<SignUpFormData>();
 
-  const disable = appStatus === 'loading';
+  const disabled = appStatus === 'loading';
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     const { email, login, password, companyName } = data;
 
-    // setData(data);
-    // console.log(data);
-    dispatch(signUp({ email, login, password, nameCompany: companyName }));
+    dispatch(signUp({ email, login, password, companyName }));
     setOpen(true);
     reset();
   };
 
-  const onResentClick = (): void => {
-    // const { email, login, password, companyName } = data;
-    //
-    // dispatch(signUp({ email, login, password, nameCompany: companyName }));
+  const onResendClick = useCallback((): void => {
+    dispatch(resendConfirmationCode({ email }));
     setOpen(false);
-  };
+    navigate(`/auth/${AUTH_PATH.LOGIN}`);
+  }, [email, open]);
 
-  const onOkClick = (): void => {
+  const onOkClick = useCallback((): void => {
     setOpen(false);
-  };
+    navigate(`/auth/${AUTH_PATH.LOGIN}`);
+  }, [open]);
+
+  // if(isSignedUp) {
+  //     setOpen(true);
+  // }
 
   return (
     <Grid container justifyContent="center">
       <BasicModal
         open={open}
-        onClickHandler={onResentClick}
+        onClickHandler={onResendClick}
         onSuccessClickHandler={onOkClick}
-        title="Welcome to our team! Check your email to finish registration."
-        buttonTitle="Resent confirmation code"
+        title={`Thank you for sign up! We have sent a verification email to ${email}.`}
+        buttonTitle="Resend email"
         successButtonTitle="OK"
-      />
+      >
+        <div style={{ padding: '30px' }}>
+          We sent an email link to complete your registration. Tip: Check your spam folder
+          {/* eslint-disable-next-line react/no-unescaped-entities */}
+          in case the email was incorrectly identified. Don't receive the email? Click on
+          Resend email.
+        </div>
+      </BasicModal>
       <Paper
         elevation={2}
-        style={{ width: '360px', textAlign: 'center', marginTop: '70px' }}
+        sx={{ width: '360px', textAlign: 'center', marginTop: '70px' }}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl>
@@ -93,9 +95,9 @@ export const SignUp = (): ReactElement => {
                   required
                   errors={errors.companyName && errors.companyName}
                   register={register}
-                  minLength={3}
+                  minLength={1}
                   maxLength={100}
-                  disable={disable}
+                  disabled={disabled}
                 />
                 <AuthInput
                   name="login"
@@ -105,7 +107,7 @@ export const SignUp = (): ReactElement => {
                   register={register}
                   minLength={3}
                   maxLength={50}
-                  disable={disable}
+                  disabled={disabled}
                 />
               </div>
 
@@ -116,7 +118,11 @@ export const SignUp = (): ReactElement => {
                   required
                   errors={errors.email && errors.email}
                   register={register}
-                  disable={disable}
+                  disabled={disabled}
+                  pattern={{
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'invalid email address',
+                  }}
                 />
                 <AuthInput
                   name="password"
@@ -124,7 +130,9 @@ export const SignUp = (): ReactElement => {
                   required
                   errors={errors.password && errors.password}
                   register={register}
-                  disable={disable}
+                  disabled={disabled}
+                  minLength={6}
+                  maxLength={30}
                 />
                 <AuthInput
                   name="confirmPassword"
@@ -133,10 +141,12 @@ export const SignUp = (): ReactElement => {
                   errors={errors.confirmPassword && errors.confirmPassword}
                   register={register}
                   watch={watch}
-                  disable={disable}
+                  disabled={disabled}
+                  minLength={6}
+                  maxLength={30}
                 />
               </div>
-              <Button type="submit" variant="contained">
+              <Button type="submit" variant="contained" disabled={disabled}>
                 SIGN UP
               </Button>
             </FormGroup>
