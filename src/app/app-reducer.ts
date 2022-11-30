@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Nullable } from '../common/types/Nullable';
+import { Nullable } from '../common';
 
 export type AppStatusType = 'idle' | 'loading';
 

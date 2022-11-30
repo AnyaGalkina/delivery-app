@@ -5,22 +5,17 @@ import Button from '@mui/material/Button';
 // eslint-disable-next-line import/order
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-// import {} from '../signUp/SignUp';
-import { useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 
-import { AppStatusType } from '../../../../app/app-reducer';
-import { useAppDispatch } from '../../../../app/hooks';
-import { RootState } from '../../../../app/store';
-import { AuthInput } from '../../../../common/components/authInput/AuthInput';
-import { AUTH_PATH } from '../../../../common/enums/enum';
+import { useAppDispatch, useAppSelector } from '../../../../app/hooks';
+import { AuthInput, AUTH_PATH } from '../../../../common';
 import { logIn } from '../../auth-reducer';
 import { LogInType } from '../../authAPI';
 import styles from '../../signUp/SignUp.module.css';
 
 export const LoginForm = (): ReactElement => {
   const dispatch = useAppDispatch();
-  const appStatus = useSelector<RootState, AppStatusType>((state) => state.app.appStatus);
+  const appStatus = useAppSelector((state) => state.app.appStatus);
 
   const {
     register,
@@ -29,14 +24,14 @@ export const LoginForm = (): ReactElement => {
     formState: { errors },
   } = useForm<LogInType>();
 
-  const disable = appStatus === 'loading';
+  const disabled = appStatus === 'loading';
 
   const onSubmit: SubmitHandler<LogInType> = (data) => {
     dispatch(logIn(data));
-    // console.log(JSON.stringify(data));
     reset();
   };
 
+  // @ts-ignore
   return (
     <Paper
       elevation={2}
@@ -47,13 +42,12 @@ export const LoginForm = (): ReactElement => {
           <h2 className={styles.title}>Log in</h2>
           <FormGroup className={styles.formControl}>
             <AuthInput
-              name={'email' || 'login'}
+              name="login"
               placeholder="Login or Email"
               required
-              errors={(errors.email && errors.email) || (errors.login && errors.login)}
+              errors={errors.login && errors.login}
               register={register}
-              disable={disable}
-              // maxLength={50}
+              disabled={disabled}
             />
             <AuthInput
               name="password"
@@ -61,14 +55,14 @@ export const LoginForm = (): ReactElement => {
               required
               errors={errors.password && errors.password}
               register={register}
-              disable={disable}
+              disabled={disabled}
             />
             <div>
               <NavLink to={`/auth/${AUTH_PATH.FORGOT_PASSWORD}`}>
                 Forgot Your Password
               </NavLink>
             </div>
-            <Button type="submit" variant="contained">
+            <Button type="submit" variant="contained" disabled={disabled}>
               SIGN UP
             </Button>
           </FormGroup>
